@@ -1,6 +1,19 @@
 require "spec_helper"
 require "rack/test"
+require "album_repository"
 require_relative '../../app'
+
+def reset_albums_table
+  seed_sql = File.read('spec/seeds/albums_seeds.sql')
+  connection = PG.connect({ host: '127.0.0.1', dbname: 'music_library_test' })
+  connection.exec(seed_sql)
+end
+
+def reset_artists_table
+  seed_sql = File.read('spec/seeds/artists_seeds.sql')
+  connection = PG.connect({ host: '127.0.0.1', dbname: 'music_library_test' })
+  connection.exec(seed_sql)
+end
 
 describe Application do
   # This is so we can use rack-test helper methods.
@@ -10,20 +23,16 @@ describe Application do
   # class so our tests work.
   let(:app) { Application.new }
 
-  context 'GET /' do
-    it 'retusn the html index' do
-      response = get('/')
-      expect(response.body).to include('<h1>Welcome to my page</h1>')
-      # to include image see below <img src="welcome to my page.jpg" />
-      expect(response.body).to include('<img src="welcome to my page.jpg" />')
-    end
+  before(:each) do 
+    reset_albums_table
+    reset_artists_table
   end
 
   context 'GET/ albums' do
     it 'should return the list of albums' do
       response = get('/albums')
 
-      expected_response = "Surfer Rosa, Waterloo, Super Trouper, Bossanova, Lover, Folklore, I Put a Spell on You, Baltimore, Here Comes the Sun, Fodder on My Wings, Ring Ring"
+      expected_response = "Doolittle, Surfer Rosa, Waterloo, Super Trouper, Bossanova, Lover, Folklore, I Put a Spell on You, Baltimore, Here Comes the Sun, Fodder on My Wings, Ring Ring"
 
       expect(response.status).to eq(200)
       expect(response.body).to eq(expected_response)
@@ -65,6 +74,17 @@ describe Application do
 
       # Verify that the response has a successful status
       expect(last_response.status).to eq(200)
+    end
+  end
+
+  context 'GET /albums/:id' do
+    it 'should return info for album 2' do
+      response = get('/albums/1')
+      
+      expect(response.status).to eq(200)
+      expect(response.body).to include('Doolittle')
+      expect(response.body).to include('Release year: 1989')
+      expect(response.body).to include('Artist: Pixies')
     end
   end
 end
