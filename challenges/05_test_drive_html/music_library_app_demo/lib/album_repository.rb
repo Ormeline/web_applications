@@ -28,8 +28,8 @@ class AlbumRepository
   end
 
   def find(id)
-    sql = 'SELECT id, title, release_year, artist_id FROM albums WHERE id = $1;'
-    result_set = DatabaseConnection.exec_params(sql, [id])
+    sql = 'SELECT id, title, release_year, artist_id FROM albums WHERE id=$1;'
+    result_set = DatabaseConnection.exec_params(sql,[id])
 
     album = Album.new
     album.id = result_set[0]['id'].to_i
@@ -48,7 +48,7 @@ class AlbumRepository
   end
 
   def delete(id)
-    sql = 'DELETE FROM albums WHERE id = $1;';
-    DatabaseConnection.exec_params(sql, [id]);
+    sql = 'DELETE FROM albums WHERE id = $1;'
+    DatabaseConnection.exec_params(sql, [id])
   end
 end
