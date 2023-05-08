@@ -11,15 +11,15 @@ class AlbumRepository
     # The result set is an array of hashes.
     # Loop through it to create a model
     # object for each record hash.
-    result_set.each do |record|
+    result_set.each do |row|
 
       # Create a new model object
       # with the record data.
       album = Album.new
-      album.id = record['id'].to_i
-      album.title = record['title']
-      album.release_year = record['release_year']
-      album.artist_id = record['artist_id'].to_i
+      album.id = row['id'].to_i
+      album.title = row['title']
+      album.release_year = row['release_year']
+      album.artist_id = row['artist_id'].to_i
 
       albums << album
     end
