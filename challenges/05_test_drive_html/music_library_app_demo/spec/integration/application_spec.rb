@@ -40,13 +40,23 @@ describe Application do
   end
 
   context 'POST/ albums' do
+    it 'should validate album parameters' do
+      response = post(
+        '/albums', 
+        invalid_artist_title: 'Holiday Blue',
+        another_invalid_thing: 123
+      )
+      expect(response.status).to eq(400)
+    end
+
     it 'should create a new album' do
       response = post(
         '/albums', 
         title: 'Voyage', 
-        release_year:'2022', 
-        artist_id:'2'
+        release_year: '2022', 
+        artist_id: '1'
       ) 
+
       expect(response.status).to eq(200)
       expect(response.body).to eq''
 
@@ -85,6 +95,17 @@ describe Application do
       expect(response.body).to include('Doolittle')
       expect(response.body).to include('Release year: 1989')
       expect(response.body).to include('Artist: Pixies')
+    end
+  end
+
+  context 'GET /albums/new' do
+    it 'should return the form to add a new album' do
+      response = get('albums/new')
+      expect(response.status).to eq(200)
+      expect(response.body).to include('<form method="POST" action="/albums">')
+      expect(response.body).to include('<input type="text" name="album_title" />')
+      expect(response.body).to include('<input type="text" name="album_release_year" />')
+      expect(response.body).to include('<input type="text" name="album_artist_id" />')
     end
   end
 end
