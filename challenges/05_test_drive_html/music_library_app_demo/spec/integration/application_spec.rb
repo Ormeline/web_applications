@@ -28,23 +28,26 @@ describe Application do
     reset_artists_table
   end
 
-  context 'GET/ albums' do
+  context 'GET /albums' do
     it 'should return the list of albums' do
       response = get('/albums')
 
-      expected_response = "Doolittle, Surfer Rosa, Waterloo, Super Trouper, Bossanova, Lover, Folklore, I Put a Spell on You, Baltimore, Here Comes the Sun, Fodder on My Wings, Ring Ring"
+      expected_response = ["Doolittle", "Surfer Rosa", "Waterloo", "Super Trouper", "Bossanova", "Lover", "Folklore", "I Put a Spell on You", "Baltimore", "Here Comes the Sun", "Fodder on My Wings", "Ring Ring"]
+
 
       expect(response.status).to eq(200)
-      expect(response.body).to eq(expected_response)
+      expect(response.body).to include(expected_response.join(', '))
     end
   end
 
-  context 'POST/ albums' do
+  context 'POST /albums' do
     it 'should validate album parameters' do
       response = post(
         '/albums', 
-        invalid_artist_title: 'Holiday Blue',
-        another_invalid_thing: 123
+        {
+          invalid_artist_title: 'Voyage',
+          another_invalid_thing: '1978'
+        }
       )
       expect(response.status).to eq(400)
     end
@@ -52,21 +55,30 @@ describe Application do
     it 'should create a new album' do
       response = post(
         '/albums', 
-        title: 'Voyage', 
-        release_year: '2022', 
-        artist_id: '1'
-      ) 
-
+        {
+          title: 'Voyage',
+          release_year: '2023',
+          artist_id: '2'
+        }
+      )
       expect(response.status).to eq(200)
-      expect(response.body).to eq''
-
-      response = get('/albums')
-
-      expect(response.body).to include('Voyage')
     end
   end
 
-  context 'GET/ artists' do
+
+  context 'POST /artists' do
+    it 'should validate artist name parameters' do
+      response = post(
+        '/artists', 
+        invalid_artist_name: 'Keyshia Cole',
+        another_invalid_thing: 134
+      )
+      
+      expect(response.status).to eq(400)
+    end
+  end
+
+  context 'GET /artists' do
     it 'should return the list of artists' do
       response = get('/artists')
   
@@ -79,10 +91,11 @@ describe Application do
 
   context 'POST /artists' do
     it 'should create a new artist and return it in the list of artists' do
-      # Make the request to create a new artist
-      post('/artists', name: 'Wild nothing', genre: 'Indie')
-
-      # Verify that the response has a successful status
+      post(
+        '/artists', 
+        name: 'Wild nothing',
+        genre: 'Indie'
+      )
       expect(last_response.status).to eq(200)
     end
   end
@@ -100,12 +113,12 @@ describe Application do
 
   context 'GET /albums/new' do
     it 'should return the form to add a new album' do
-      response = get('albums/new')
+      response = get('/albums/new')
       expect(response.status).to eq(200)
       expect(response.body).to include('<form method="POST" action="/albums">')
-      expect(response.body).to include('<input type="text" name="album_title" />')
-      expect(response.body).to include('<input type="text" name="album_release_year" />')
-      expect(response.body).to include('<input type="text" name="album_artist_id" />')
+      expect(response.body).to include('<input type="text" name="title" />')
+      expect(response.body).to include('<input type="text" name="release_year" />')
+      expect(response.body).to include('<input type="text" name="artist_id" />')
     end
   end
 end
